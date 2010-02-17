@@ -1,0 +1,67 @@
+
+Radio Mobile
+Report generated at 17:38:51 on 07-04-2007
+---------------------------------------------------------------------------
+General information
+---------------------------------------------------------------------------
+Net file      Z:\HOME\CARLOS\EHAS\RADIO MOBILE\RED EHAS ALIS ACTUALIZADA 2006\RED EHAS ALIS ULTIMA.NET
+Map file      Z:\HOME\CARLOS\EHAS\RADIO MOBILE\RED EHAS ALIS ACTUALIZADA 2006\RED EHAS ALIS ACTUAL.MAP
+Map centre    13°48'03"S 071°42'03"W 19L BE 07986 72644
+Map size      75.0 km N-S, 103.01 E-W
+---------------------------------------------------------------------------
+Active units information
+---------------------------------------------------------------------------
+Name                Location                                     Elevation
+
+URPAY               13°42'42"S 071°39'55"W 19L BE 11727 82575    3420.0m
+HUIRACOCHAN         13°40'44"S 071°38'14"W 19L BE 14718 86218    3516.0m
+JOSJOJAHUARINA 1    13°39'01"S 071°35'18"W 19L BE 19984 89469    4268.0m
+JOSJOJAHUARINA 2    13°38'44"S 071°35'08"W 19L BE 20265 89994    4260.0m
+---------------------------------------------------------------------------
+Systems
+---------------------------------------------------------------------------
+Name                Pwr Tx    Loss  Loss (+)  Rx thr.   Ant. G. Ant. Type
+
+Uuario Final PCMCIA 0.200W    2.3dB 0.000dB/m 93.0dBm   24.0dBi omni.ant
+Josjo 1 Sectorial PC0.200W    6.7dB 0.000dB/m 89.0dBm   17.0dBi omni.ant
+Josjo 1 Directiva PC0.200W    6.7dB 0.000dB/m 89.0dBm   19.0dBi omni.ant
+Josjo 2 Troncal     0.200W    3.4dB 0.000dB/m 93.0dBm   19.0dBi omni.ant
+Huiracochan Troncal 0.200W    2.9dB 0.000dB/m 93.0dBm   19.0dBi omni.ant
+Don Juan PCMCIA     0.200W    1.7dB 0.000dB/m 93.0dBm   24.0dBi omni.ant
+wifi 5.8            0.398W    2.0dB 0.000dB/m 93.0dBm   29.0dBi omni.ant
+---------------------------------------------------------------------------
+Active nets information
+---------------------------------------------------------------------------
+
+1. Josjo1AP - Josjo2           
+Cluster topology
+2400.0 MHz to 2483.0 MHz
+Vertical polarization
+Mode of variability is Broadcast, at
+50% of time, 50% of locations, 50% of situations
+Refractivity= 301 N-units, conductivity= 0.005 S/m, permittivity= 15
+Continental temperate climate
+
+Net members:               #  01 02 Role:         System:             Antenna:
+JOSJOJAHUARINA 1           01    50 Node          Josjo 1 Directiva PC6.5m
+JOSJOJAHUARINA 2           02 50    Terminal      Josjo 2 Troncal     9.0m
+
+                           Quality = 50 - number of resend
+
+
+2. Josjo1 AP - Huiracochan, Ur
+Cluster topology
+2400.0 MHz to 2483.0 MHz
+Vertical polarization
+Mode of variability is Broadcast, at
+50% of time, 50% of locations, 50% of situations
+Refractivity= 301 N-units, conductivity= 0.005 S/m, permittivity= 15
+Continental temperate climate
+
+Net members:               #  01 02 03 Role:         System:             Antenna:
+URPAY                      01       50 Terminal      Uuario Final PCMCIA 5.0m
+HUIRACOCHAN                02       50 Terminal      Huiracochan Troncal 12.0m
+JOSJOJAHUARINA 1           03 50 50    Node          Josjo 1 Sectorial PC6.5m
+
+                           Quality = 50 - number of resend
+
