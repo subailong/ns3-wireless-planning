@@ -1,5 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*
+import os
 import unittest
 from datetime import datetime
 from pprint import pprint
@@ -8,7 +9,9 @@ import radiomobile
 
 class RadioMobileReportTest(unittest.TestCase):
     def setUp(self):
-        self.report = radiomobile.RadioMobileReport("radiomobile_report_test.txt")
+        filename = "radiomobile_report_test.txt"
+        path = os.path.join(os.path.dirname(__file__), filename)
+        self.report = radiomobile.RadioMobileReport(path)
               
     def test_generated_on(self):
         self.assertEqual(datetime(2007, 4, 7, 17, 38, 51), self.report.generated_on)
@@ -47,11 +50,10 @@ class RadioMobileReportTest(unittest.TestCase):
 
     def test_net_details(self):
         nets = self.report.nets
-        links = nets['Josjo1 AP - Huiracochan, Ur']
-        
+        links = nets['Josjo1 AP - Huiracochan, Ur']        
         self.assertEqual(2, len(links))
-        link1, link2 = links
         
+        link1, link2 = links        
         self.assertEqual(50, link1["quality"])
         self.assertEqual(50, link1["max_quality"])
         expected_link1_node1 = {

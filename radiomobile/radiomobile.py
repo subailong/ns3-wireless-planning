@@ -1,4 +1,5 @@
 #!/usr/bin/python
+# -*- coding: utf-8 -*
 """Parse radiomobile report.txt file."""
 import os
 import re
@@ -54,14 +55,10 @@ def parse_table(lines, fields, keyify_cb=None):
     for line in strip_iter(units):
         def _generator():
             for (field, (start, end)) in zip(fields, pairwise(indexes+(None,))):
-                key = keyify(field) if (not keyify_cb or keyify_cb(field)) else field
+                key = (keyify(field) if (not keyify_cb or keyify_cb(field)) else field)
                 value = line[start:end].strip()
                 yield (key, value)
         yield dict(_generator())        
-
-def iterlen(it):
-    """Return length of iterable."""
-    return sum(1 for _ in it)
 
 def iter_block(lines, startre, endre):
     """Yield lines whose bounds are defined by a start/end regular expressions."""
@@ -84,6 +81,10 @@ def create_odict_from_items(key, dictlst):
     return odict(_generator())      
     
 def parse_header(lines):
+    """
+    Check that the headers contain a valid RadioMobile identifier and return
+    the generation report date.
+    """     
     title, generated = strip_iter(lines)
     expected_title = "Radio Mobile" 
     if title != expected_title:
@@ -92,14 +93,17 @@ def parse_header(lines):
     return datetime.strptime(info, "%H:%M:%S on %d-%m-%Y")
 
 def parse_active_units(lines):
+    """Return orderect dict containing (name, attributes) pairs for units."""
     headers = ["Name", "Location", "Elevation"]
     return create_odict_from_items("name", parse_table(lines, headers))
             
 def parse_systems(lines):
+    """Return orderect dict containing (name, attributes) pairs for systems."""
     headers = ["Name", "Pwr Tx", "Loss", "Loss (+)", "Rx thr.", "Ant. G.", "Ant. Type"]
     return create_odict_from_items("name", parse_table(lines, headers))
 
 def get_net_links(rows, grid_field, max_quality):
+    """Parse a quality grid and return dictionary with information.""" 
     def get_quality(lst):
         s = "".join(lst)
         return (int(s) if s.strip() else None)
@@ -120,7 +124,8 @@ def get_net_links(rows, grid_field, max_quality):
             }
             yield link
 
-def parse_active_nets(lines):    
+def parse_active_nets(lines):
+    """Return an orderd dict with nets, each containing a list of links.""" 
     nets_lines = list(split_iter(lines[1:], lambda s: re.match("\d+\. ", s)))
     nets = odict()
     for header, info in group(2, nets_lines):
@@ -137,12 +142,12 @@ def parse_active_nets(lines):
 
 class RadioMobileReport:
     """
-    Read and parse a Radiomobile report.txt.
+    Read and parse a Radiomobile report.txt file.
     
     >>> report = RadioMobileReport("report.txt")
-    >>> report.nets.pprint()
-    >>> report.systems.pprint()
-    >>> report.units.pprint()
+    >>> report.nets
+    >>> report.systems
+    >>> report.units
     """
     def __init__(self, filename):
         lines = open(filename).read().splitlines()
@@ -156,7 +161,9 @@ class RadioMobileReport:
         self.systems = parse_systems(sections["systems"])
         self.nets = parse_active_nets(sections["active_nets_information"])
 
+
 def main(args):
+    """Print basic information of a report.txt."""
     if not args:
         debug("Usage: %s REPORT_TXT_PATH" % os.path.basename(sys.argv[0]))
         return 2
