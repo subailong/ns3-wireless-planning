@@ -42,10 +42,9 @@ def find_columns(line, fields):
     return [(field, line.index(field)) for field in fields]
 
 def pairwise(iterable):
-    "s -> (s0,s1), (s1,s2), (s2, s3), ..."
+    "s -> (s0, s1), (s1, s2), (s2, s3), ..."
     a, b = itertools.tee(iterable)
-    next(b, None)
-    return itertools.izip(a, b)
+    return itertools.izip(a, itertools.islice(b, 1, None))
 
 def parse_table(lines, fields, keyify_cb=None):
     """Parse table and yield dictionaries containing the row info."""
@@ -53,12 +52,12 @@ def parse_table(lines, fields, keyify_cb=None):
     columns = find_columns(header, fields)
     fields, indexes = zip(*columns)
     for line in strip_iter(units):
-        def _generator():
-            for (field, (start, end)) in zip(fields, pairwise(indexes+(None,))):
+        def _pairs():
+            for field, (start, end) in zip(fields, pairwise(indexes+(None,))):
                 key = (keyify(field) if (not keyify_cb or keyify_cb(field)) else field)
                 value = line[start:end].strip()
                 yield (key, value)
-        yield dict(_generator())        
+        yield dict(_pairs())        
 
 def iter_block(lines, startre, endre):
     """Yield lines whose bounds are defined by a start/end regular expressions."""
@@ -85,11 +84,14 @@ def parse_header(lines):
     Check that the headers contain a valid RadioMobile identifier and return
     the generation report date.
     """     
-    title, generated = strip_iter(lines)
+    slines = strip_iter(lines)
+    if len(slines) != 2:
+        raise ValueError, "Unknown header: %s" % slines[:2]
+    title, generated_on = slines
     expected_title = "Radio Mobile" 
     if title != expected_title:
-        raise ValueError, "Unknown header: %s (expected: %s)" % (title, expected_title)
-    info = " ".join(generated.split()[-3:])
+        raise ValueError, "Unknown header title: %s (expected: %s)" % (title, expected_title)
+    info = " ".join(generated_on.split()[-3:])
     return datetime.strptime(info, "%H:%M:%S on %d-%m-%Y")
 
 def parse_active_units(lines):
@@ -105,12 +107,12 @@ def parse_systems(lines):
 def get_net_links(rows, grid_field, max_quality):
     """Parse a quality grid and return dictionary with information.""" 
     def get_quality(lst):
-        s = "".join(lst)
-        return (int(s) if s.strip() else None)
+        s = "".join(lst).strip()
+        return (int(s) if s else None)
     def clean_node(node):
         return dict((k, v) for (k, v) in node.iteritems() if not k.startswith("#"))
     
-    for nrow, row in enumerate(rows):
+    for nrow, row in enumerate(rows[:-1]):
         qualities = map(get_quality, group(3, row[grid_field][3:], ''))
         for npeer_row, quality in enumerate(qualities):
             if not quality or nrow >= npeer_row:
@@ -164,7 +166,7 @@ class RadioMobileReport:
 
 def main(args):
     """Print basic information of a report.txt."""
-    if not args:
+    if len(args) != 1:
         debug("Usage: %s REPORT_TXT_PATH" % os.path.basename(sys.argv[0]))
         return 2
     text_report_filename, = args
