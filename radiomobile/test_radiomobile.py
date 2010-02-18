@@ -50,12 +50,13 @@ class RadioMobileReportTest(unittest.TestCase):
 
     def test_net_details(self):
         nets = self.report.nets
-        links = nets['Josjo1 AP - Huiracochan, Ur']        
+        net1 = nets['Josjo1 AP - Huiracochan, Ur']
+        links = net1.links        
+        self.assertEqual(50, net1.max_quality)
         self.assertEqual(2, len(links))
         
         link1, link2 = links        
         self.assertEqual(50, link1["quality"])
-        self.assertEqual(50, link1["max_quality"])
         expected_link1_node1 = {
             'antenna': '5.0m',
             'net_members': 'URPAY',

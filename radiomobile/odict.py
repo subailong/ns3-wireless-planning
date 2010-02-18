@@ -30,12 +30,15 @@ class odict(DictMixin):
         for key in self._keys:
             result.append('(%s, %s)' % (repr(key), repr(self._data[key])))
         return ''.join(['OrderedDict', '([', ', '.join(result), '])'])
-
+  
     def pprint(self):
         info = pformat(self.items())
         template = ("OrderedDict(\n%s\n)" if "\n" in info else "OrderedDict(%s)")
         print template % info
-        
+
+    #def getslice(*slice_args):
+    #    return [for key in self.keys()[slice(*alice_args)]
+                  
     def keys(self):
         return list(self._keys)
         

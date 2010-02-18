@@ -6,7 +6,7 @@ import re
 import sys
 import itertools
 from datetime import datetime
-from pprint import pprint
+import pprint
 
 from odict import odict
 
@@ -104,7 +104,7 @@ def parse_systems(lines):
     headers = ["Name", "Pwr Tx", "Loss", "Loss (+)", "Rx thr.", "Ant. G.", "Ant. Type"]
     return create_odict_from_items("name", parse_table(lines, headers))
 
-def get_net_links(rows, grid_field, max_quality):
+def get_net_links(rows, grid_field):
     """Parse a quality grid and return dictionary with information.""" 
     def get_quality(lst):
         s = "".join(lst).strip()
@@ -120,7 +120,6 @@ def get_net_links(rows, grid_field, max_quality):
             peer_row = rows[npeer_row]
             link = {            
                 "quality": quality,
-                "max_quality": max_quality,
                 "node1": clean_node(row),
                 "node2": clean_node(peer_row),
             }
@@ -138,10 +137,42 @@ def parse_active_nets(lines):
         grid_field = re.match("Net members:\s*(.*?)\s*Role:", table[0]).group(1)
         grid_fields = ["Net members:", grid_field, "Role:", "System:", "Antenna:"]    
         rows = list(parse_table(table, grid_fields, lambda s: not s.startswith('#')))
-        links = list(get_net_links(rows, grid_field, max_quality))        
-        nets[name] = links
+        links = list(get_net_links(rows, grid_field))
+        nets[name] = Network(name, links, max_quality)
     return nets                
 
+class Network:
+    def __init__(self, name, links, max_quality):
+        self.name = name
+        self.links = links
+        self.max_quality = max_quality
+        self.terminal_members = []
+        self.node_member = None 
+        self._update_node_types()
+        
+    def __repr__(self):
+        values = [
+            ("name", self.name),
+            ("max_quality", self.max_quality),
+            ("node_member", self.node_member),
+            ("terminal_members", "[%s]" % ", ".join(self.terminal_members)),
+            ("links", pprint.pformat(self.links)),
+        ]
+        info = "\n".join("    %s = %s" % (k, v) for (k, v) in values)
+        return "Network(\n%s)" % info
+
+    def _update_node_types(self):
+        for link in self.links:
+            for nodeid in ("node1", "node2"):
+                name = link[nodeid]["net_members"]
+                role = link[nodeid]["role"]
+                if role == "Node":
+                    if self.node_member and self.node_member != name:
+                        raise ValueError, "Node member already set: %s" % self.node_membr
+                    self.node_member = name
+                elif role == "Terminal":
+                    self.terminal_members.append(name)  
+                    
 class RadioMobileReport:
     """
     Read and parse a Radiomobile report.txt file.
