@@ -1,15 +1,16 @@
 import sys
 import ns3
-import radiomobile
 from pprint import pprint
+
+import radiomobile
 
 ns3.LogComponentEnable("UdpEchoClientApplication", ns3.LOG_LEVEL_INFO)
 ns3.LogComponentEnable("UdpEchoServerApplication", ns3.LOG_LEVEL_INFO)
 
 class Struct:
     """Struct/record-like class."""
-    def __init__(self, name, **entries):
-        self._name = name
+    def __init__(self, _name, **entries):
+        self._name = _name
         self.__dict__.update(entries)
 
     def __repr__(self):
@@ -36,43 +37,46 @@ def set_udp_client_server(server_node, server_address, client_node):
     clientApps.Start(ns3.Seconds(2.0))
     clientApps.Stop(ns3.Seconds(10.0))
 
-def add_devices(nodeid2computer, nodes, devices):    
+def add_devices_to_node(network, ns3node_to_node, nodes, devices):  
     for index in range(devices.GetN()):
-        device = devices.Get(index)
-        node = (nodes if type(nodes) == ns3.Node else nodes.Get(index))
-        computer = nodeid2computer[node.GetId()]
-        computer.devices.append(device)
+        ns3_device = devices.Get(index)
+        ns3_node = (nodes if type(nodes) == ns3.Node else nodes.Get(index))
+        node = ns3node_to_node[ns3_node.GetId()]
+        system = network.net_members[node.name].system
+        device = Struct("device", ns3_device=ns3_device, interfaces=[])
+        node.devices[system] = device
 
-def add_interfaces(nodeid2computer, nodes, interfaces):
+def add_interfaces_to_device(network, ns3node_to_node, nodes, interfaces):
     for index in range(interfaces.GetN()):
         address = interfaces.GetAddress(index)
-        node = (nodes if type(nodes) == ns3.Node else nodes.Get(index))
-        computer = nodeid2computer[node.GetId()]
-        computer.addresses.append(address)
+        ns3_node = (nodes if type(nodes) == ns3.Node else nodes.Get(index))
+        node = ns3node_to_node[ns3_node.GetId()]
+        system = network.net_members[node.name].system
+        interface = Struct("interface", address=address) 
+        node.devices[system].interfaces.append(interface)
 
 def create_network(report):
-    computers = {}
+    # Build nodes 
+    nodes = {}
     for name, attrs in report.units.iteritems():
-        computer = Struct("computer", 
-            node=ns3.Node(), 
-            devices=[],
-            addresses=[]) 
-        computers[name] = computer
-    nodeid2computer = dict((computer.node.GetId(), computer) 
-        for computer in computers.values())
+        node = Struct("node", name=name, ns3_node=ns3.Node(), devices={})
+        nodes[name] = node
+    ns3node_to_node = dict((node.ns3_node.GetId(), node) for node in nodes.values())
 
     # Internet stack
     stack = ns3.InternetStackHelper()
-    for name, computer in computers.iteritems():
-        stack.Install(computer.node)
+    for name, node in nodes.iteritems():
+        stack.Install(node.ns3_node)
     
     for net_index, (name, network) in enumerate(report.nets.iteritems()):
-        ap_node = computers[network.node_member].node
+        node_member = radiomobile.get_units_for_network(network, "Node")[0]
+        terminal_members = radiomobile.get_units_for_network(network, "Terminal")
+        ap_node = nodes[node_member].ns3_node
         sta_nodes = ns3.NodeContainer()            
-        debug("network '%s': ap_node='%s', sta_nodes=%s" % 
-            (name, network.node_member, network.terminal_members))
-        for name in network.terminal_members:
-            sta_nodes.Add(computers[name].node)
+        debug("Add network '%s'\n  ap_node = '%s'\n  sta_nodes = %s" % 
+            (name, node_member, terminal_members))
+        for name in terminal_members:
+            sta_nodes.Add(nodes[name].ns3_node)
                     
         # Wifi channel
         channel = ns3.YansWifiChannelHelper.Default()
@@ -88,7 +92,7 @@ def create_network(report):
             "Ssid", ns3.SsidValue(ssid),
             "ActiveProbing", ns3.BooleanValue(False))
         sta_devices = wifi.Install(phy, mac, sta_nodes)
-        add_devices(nodeid2computer, sta_nodes, sta_devices)
+        add_devices_to_node(network, ns3node_to_node, sta_nodes, sta_devices)
 
         # AP devices
         mac = ns3.NqosWifiMacHelper.Default()
@@ -97,7 +101,7 @@ def create_network(report):
             "BeaconGeneration", ns3.BooleanValue(True),
             "BeaconInterval", ns3.TimeValue(ns3.Seconds(2.5)))
         ap_devices = wifi.Install(phy, mac, ap_node)
-        add_devices(nodeid2computer, ap_node, ap_devices)
+        add_devices_to_node(network, ns3node_to_node, ap_node, ap_devices)
         
         # Set IP addresses
         address = ns3.Ipv4AddressHelper()
@@ -105,8 +109,8 @@ def create_network(report):
         address.SetBase(ns3.Ipv4Address(netaddr), ns3.Ipv4Mask("255.255.255.0"))
         ap_interfaces = address.Assign(ap_devices)
         sta_interfaces = address.Assign(sta_devices)
-        add_interfaces(nodeid2computer, ap_node, ap_interfaces)
-        add_interfaces(nodeid2computer, sta_nodes, sta_interfaces)
+        add_interfaces_to_device(network, ns3node_to_node, ap_node, ap_interfaces)
+        add_interfaces_to_device(network, ns3node_to_node, sta_nodes, sta_interfaces)
 
         # Mobility
         mobility = ns3.MobilityHelper()
@@ -118,20 +122,8 @@ def create_network(report):
         mobility.Install(sta_nodes)
 
     ns3.Ipv4GlobalRoutingHelper.PopulateRoutingTables()
+    return Struct("Network", nodes=nodes, phy=phy)
               
-    # Applications
-    server = computers["CCATCCA"]
-    client = computers["URCOS"]
-    print
-    pprint(computers)
-    print "server:", server
-    print "client:", client
-    set_udp_client_server(server.node, server.addresses[0], client.node)
-    #set_udp_client_server(server.node, server.interfaces["system"].address, client.node)
-
-    # Tracing
-    phy.EnablePcap("udp_echo", computers["JOSJOJAHUARINA 1"].devices[0])
-
 def run_simulation(limit = None):
     if limit is not None:    
         ns3.Simulator.Stop(ns3.Seconds(limit))
@@ -143,8 +135,21 @@ def main(args):
         debug("Usage: %s REPORT_TXT_PATH" % os.path.basename(sys.argv[0]))
         return 2
     text_report_filename, = args
-    report = radiomobile.RadioMobileReport(text_report_filename)
-    create_network(report)
+    report = radiomobile.parse_report(text_report_filename)
+    network = create_network(report)
+    
+    # Applications
+    server = network.nodes["CCATCCA"]
+    client = network.nodes["URCOS"]
+    set_udp_client_server(server.ns3_node, 
+        server.devices["Uuario Final PCMCIA"].interfaces[0].address, 
+        client.ns3_node)
+
+    # Tracing
+    josjo1 = network.nodes["JOSJOJAHUARINA 1"]
+    device = josjo1.devices['Josjo 1 Sectorial PC'].ns3_device
+    network.phy.EnablePcap("udp_echo", device)
+    
     run_simulation(10.0)
 
 if __name__ == '__main__':
