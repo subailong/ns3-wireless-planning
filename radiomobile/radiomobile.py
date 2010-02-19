@@ -28,10 +28,28 @@ def debug(line):
     sys.stderr.write(line + "\n")
     sys.stderr.flush()
 
-def group(n, iterable, fillvalue=None):
-    "group(3, 'ABCDEFG', 'x') --> ABC DEF Gxx"
+def first(it):
+    """Return first item in iterable."""
+    return it.next()
+
+def grouper(n, iterable, fillvalue=None):
+    "grouper(3, 'ABCDEFG', 'x') --> ABC DEF Gxx"
     args = [iter(iterable)] * n
     return itertools.izip_longest(fillvalue=fillvalue, *args)
+
+def flatten(lst):
+    """Flat one level of lst."""
+    return [y for x in lst for y in x]
+
+def split_iter_of_consecutive(it, pred, n):
+    """Yield groups in iterable delimited by n consecutive items that match predicate."""
+    lst = list(it)
+    indexes = [idx for (idx, x) in enumerate(lst) if pred(x)]
+    indexeslst = [[x[1] for x in group] for (match, group) 
+        in itertools.groupby(enumerate(indexes), lambda (i, x): i - x)]
+    split_indexes = [(idxs[0], idxs[-1]+1) for idxs in indexeslst if len(idxs) >= n]
+    for start, end in grouper(2, [0] + flatten(split_indexes) + [None]):
+        yield lst[start:end]   
 
 def keyify(s):
     """Replaces spaces in string for underscores."""
@@ -44,9 +62,15 @@ def split_iter(it, condition, skip_sep=False):
             continue
         yield list(group)
 
-def strip_iter(it, condition=bool):
-    """Strip element in iterable."""
+def strip_iter_items(it, condition=bool):
+    """Remove items in iterable that do not match condition."""
     return list(itertools.ifilter(condition, it))
+
+def strip_list(lst, condition=bool):
+    """Strip element in iterable."""
+    start = first(idx for (idx, x) in enumerate(lst) if condition(x)) 
+    end = first((len(lst)-idx) for (idx, x) in enumerate(reversed(lst)) if condition(x))
+    return lst[start:end]
     
 def find_columns(line, fields):
     """Return list of pairs (field, index) for fields in line."""
@@ -62,7 +86,7 @@ def parse_table(lines, fields, keyify_cb=None):
     header, units = lines[0], lines[1:]
     columns = find_columns(header, fields)
     fields, indexes = zip(*columns)
-    for line in strip_iter(units):
+    for line in strip_iter_items(units):
         def _pairs():
             for field, (start, end) in zip(fields, pairwise(indexes+(None,))):
                 key = (keyify(field) if (not keyify_cb or keyify_cb(field)) else field)
@@ -95,7 +119,7 @@ def parse_header(lines):
     Check that the headers contain a valid RadioMobile identifier and return
     the generation report date.
     """     
-    slines = strip_iter(lines)
+    slines = strip_iter_items(lines)
     if len(slines) != 2:
         raise ValueError, "Unknown header: %s" % slines[:2]
     title, generated_on = slines
@@ -124,7 +148,7 @@ def get_net_links(rows, grid_field):
         return dict((k, v) for (k, v) in node.iteritems() if not k.startswith("#"))
     
     for nrow, row in enumerate(rows[:-1]):
-        qualities = map(get_quality, group(3, row[grid_field][3:], ''))
+        qualities = map(get_quality, grouper(3, row[grid_field][3:], ''))
         for npeer_row, quality in enumerate(qualities):
             if not quality or nrow >= npeer_row:
                 continue
@@ -138,11 +162,12 @@ def get_net_links(rows, grid_field):
 
 def parse_active_nets(lines):
     """Return an orderd dict with nets, each containing a list of links.""" 
-    nets_lines = list(split_iter(lines[1:], lambda s: re.match("\d+\. ", s)))
+    nets_lines = list(split_iter_of_consecutive(lines[1:], lambda s: not s.strip(), 2))
     nets = odict()
-    for header, info in group(2, nets_lines):
-        index, name = map(str.strip, header[0].split(". ", 1))
-        block = list(iter_block(info, r"Net members:", r"\s.*Quality ="))
+    for net_lines in strip_iter_items(nets_lines):
+        info = strip_list(net_lines)
+        name = info[0].strip()
+        block = list(iter_block(strip_list(info[1:]), r"Net members:", r"\s.*Quality ="))
         table, quality_line = block[:-2], block[-1]
         max_quality = int(re.search("Quality = (\d+)", quality_line).group(1))
         grid_field = re.match("Net members:\s*(.*?)\s*Role:", table[0]).group(1)
@@ -153,9 +178,9 @@ def parse_active_nets(lines):
         links = []
         for link in links0:
             peers = (link["node1"]["net_members"], link["node2"]["net_members"])
-            link = Struct("link", peers=peers, quality=link["quality"])
+            link = Struct("Link", peers=peers, quality=link["quality"])
             links.append(link)
-        nets[name] = Struct("network", name=name, net_members=net_members,
+        nets[name] = Struct("Network", name=name, net_members=net_members,
             links=links, max_quality=max_quality)
     return nets                
 
@@ -171,7 +196,7 @@ def parse_report(filename):
     """
     Read and parse a Radiomobile report.txt file.
     
-    >>> report = RadioMobileReport("report.txt")
+    >>> report = parse_report("report.txt")
     >>> report.nets
     >>> report.systems
     >>> report.units
@@ -179,7 +204,7 @@ def parse_report(filename):
     lines = open(filename).read().splitlines()
     splitted_lines = list(split_iter(lines, lambda s: s.startswith("---"), skip_sep=True))
     generated_on = parse_header(splitted_lines[0])
-    sections = dict((keyify(key[0]), val) for (key, val) in group(2, splitted_lines[1:]))
+    sections = dict((keyify(key[0]), val) for (key, val) in grouper(2, splitted_lines[1:]))
     
     return Struct("RadioMobileReport",
         generated_on=generated_on,
@@ -189,7 +214,7 @@ def parse_report(filename):
         nets=parse_active_nets(sections["active_nets_information"]))
 
 
-def main(args):
+def main(args):    
     """Print basic information of a report.txt."""
     if len(args) != 1:
         debug("Usage: %s REPORT_TXT_PATH" % os.path.basename(sys.argv[0]))

@@ -46,14 +46,15 @@ class RadioMobileReportTest(unittest.TestCase):
 
     def test_nets(self):
         nets = self.report.nets
-        self.assertEqual(['Josjo1AP - Josjo2', 'Josjo1 AP - Huiracochan, Ur'], nets.keys())
+        self.assertEqual(['1. Josjo1AP - Josjo2', '2. Josjo1 AP - Huiracochan, Ur'], nets.keys())
+        
+        net1 = nets['2. Josjo1 AP - Huiracochan, Ur']
+        self.assertEqual(50, net1.max_quality)
+        self.assertEqual(2, len(net1.links))
 
     def test_net_details(self):
-        nets = self.report.nets
-        net1 = nets['Josjo1 AP - Huiracochan, Ur']
-        links = net1.links        
-        self.assertEqual(50, net1.max_quality)
-        self.assertEqual(2, len(links))
+        net1 = self.report.nets['2. Josjo1 AP - Huiracochan, Ur']
+        links = net1.links
         
         link1, link2 = links       
         self.assertEqual(50, link1.quality)
@@ -62,9 +63,13 @@ class RadioMobileReportTest(unittest.TestCase):
         self.assertEqual(50, link2.quality)        
         self.assertEqual(('HUIRACOCHAN', 'JOSJOJAHUARINA 1'), link2.peers)
         
-        urpay_member = net1.net_members["URPAY"]
-        self.assertEqual("Terminal", urpay_member.role)
-        self.assertEqual("5.0m", urpay_member.antenna) 
+        member1 = net1.net_members["URPAY"]
+        self.assertEqual("Terminal", member1.role)
+        self.assertEqual("5.0m", member1.antenna) 
+
+        member2 = net1.net_members["HUIRACOCHAN"]
+        self.assertEqual("12.0m", member2.antenna) 
+        self.assertEqual("Terminal", member2.role)
 
     def test_get_units_for_network(self):
         net2 = self.report.nets.values()[1]
