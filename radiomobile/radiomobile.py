@@ -10,7 +10,18 @@ import pprint
 
 from odict import odict
 
-# Generic functions
+# Generic functions and types
+
+class Struct:
+    """Struct/record-like class."""
+    def __init__(self, _name, **entries):
+        self._name = _name
+        self.__dict__.update(entries)
+
+    def __repr__(self):
+        dargs = dict((k, v) for (k, v) in 
+            vars(self).iteritems() if not k.startswith("_"))
+        return "(%s): %s" % (self._name, pprint.pformat(dargs))
 
 def debug(line):
     """Output line to standard error."""
@@ -68,15 +79,15 @@ def iter_block(lines, startre, endre):
     
 # Radiomobile functions
 
-def create_odict_from_items(key, dictlst):
+def create_odict_from_items(name, key, dictlst):
     """
     Construct an ordered dictionary from a list of dictionaries, using 
     the key from the dictionary.
     """
     def _generator():
         for delement in dictlst:        
-            values = dict((k, v) for (k, v) in delement.iteritems() if k != key)
-            yield (delement[key], values)
+            dvalues = dict((k, v) for (k, v) in delement.iteritems())
+            yield (delement[key], Struct(name, **dvalues))
     return odict(_generator())      
     
 def parse_header(lines):
@@ -97,12 +108,12 @@ def parse_header(lines):
 def parse_active_units(lines):
     """Return orderect dict containing (name, attributes) pairs for units."""
     headers = ["Name", "Location", "Elevation"]
-    return create_odict_from_items("name", parse_table(lines, headers))
+    return create_odict_from_items("unit", "name", parse_table(lines, headers))
             
 def parse_systems(lines):
     """Return orderect dict containing (name, attributes) pairs for systems."""
     headers = ["Name", "Pwr Tx", "Loss", "Loss (+)", "Rx thr.", "Ant. G.", "Ant. Type"]
-    return create_odict_from_items("name", parse_table(lines, headers))
+    return create_odict_from_items("system", "name", parse_table(lines, headers))
 
 def get_net_links(rows, grid_field):
     """Parse a quality grid and return dictionary with information.""" 
@@ -137,43 +148,26 @@ def parse_active_nets(lines):
         grid_field = re.match("Net members:\s*(.*?)\s*Role:", table[0]).group(1)
         grid_fields = ["Net members:", grid_field, "Role:", "System:", "Antenna:"]    
         rows = list(parse_table(table, grid_fields, lambda s: not s.startswith('#')))
-        links = list(get_net_links(rows, grid_field))
-        nets[name] = Network(name, links, max_quality)
+        links0 = list(get_net_links(rows, grid_field))
+        net_members = create_odict_from_items("net_member", "net_members", rows)        
+        links = []
+        for link in links0:
+            peers = (link["node1"]["net_members"], link["node2"]["net_members"])
+            link = Struct("link", peers=peers, quality=link["quality"])
+            links.append(link)
+        nets[name] = Struct("network", name=name, net_members=net_members,
+            links=links, max_quality=max_quality)
     return nets                
 
-class Network:
-    def __init__(self, name, links, max_quality):
-        self.name = name
-        self.links = links
-        self.max_quality = max_quality
-        self.terminal_members = []
-        self.node_member = None 
-        self._update_node_types()
-        
-    def __repr__(self):
-        values = [
-            ("name", self.name),
-            ("max_quality", self.max_quality),
-            ("node_member", self.node_member),
-            ("terminal_members", "[%s]" % ", ".join(self.terminal_members)),
-            ("links", pprint.pformat(self.links)),
-        ]
-        info = "\n".join("    %s = %s" % (k, v) for (k, v) in values)
-        return "Network(\n%s)" % info
-
-    def _update_node_types(self):
-        for link in self.links:
-            for nodeid in ("node1", "node2"):
-                name = link[nodeid]["net_members"]
-                role = link[nodeid]["role"]
-                if role == "Node":
-                    if self.node_member and self.node_member != name:
-                        raise ValueError, "Node member already set: %s" % self.node_membr
-                    self.node_member = name
-                elif role == "Terminal":
-                    self.terminal_members.append(name)  
-                    
-class RadioMobileReport:
+def get_units_for_network(net, role=None):
+    """Return units of a network with an (optional) role."""
+    def _generator():
+        for net_member, attrs in net.net_members.iteritems():
+            if role is None or role == attrs.role:
+                yield net_member
+    return list(_generator())
+                                
+def parse_report(filename):
     """
     Read and parse a Radiomobile report.txt file.
     
@@ -182,17 +176,17 @@ class RadioMobileReport:
     >>> report.systems
     >>> report.units
     """
-    def __init__(self, filename):
-        lines = open(filename).read().splitlines()
-        splitted_lines = list(split_iter(lines, lambda s: s.startswith("---"), skip_sep=True))
-        generated_on = parse_header(splitted_lines[0])
-        sections = dict((keyify(key[0]), val) for (key, val) in group(2, splitted_lines[1:]))
-        
-        self.generated_on = generated_on
-        self.general_information = sections["general_information"]
-        self.units = parse_active_units(sections["active_units_information"])
-        self.systems = parse_systems(sections["systems"])
-        self.nets = parse_active_nets(sections["active_nets_information"])
+    lines = open(filename).read().splitlines()
+    splitted_lines = list(split_iter(lines, lambda s: s.startswith("---"), skip_sep=True))
+    generated_on = parse_header(splitted_lines[0])
+    sections = dict((keyify(key[0]), val) for (key, val) in group(2, splitted_lines[1:]))
+    
+    return Struct("RadioMobileReport",
+        generated_on=generated_on,
+        general_information=sections["general_information"],
+        units=parse_active_units(sections["active_units_information"]),
+        systems=parse_systems(sections["systems"]),
+        nets=parse_active_nets(sections["active_nets_information"]))
 
 
 def main(args):
@@ -201,7 +195,7 @@ def main(args):
         debug("Usage: %s REPORT_TXT_PATH" % os.path.basename(sys.argv[0]))
         return 2
     text_report_filename, = args
-    report = RadioMobileReport(text_report_filename)
+    report = parse_report(text_report_filename)
     print "--- Generated on: %s" % report.generated_on
     print "--- Units:"
     report.units.pprint()
