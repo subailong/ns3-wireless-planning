@@ -121,4 +121,4 @@ def create_network(report):
         mobility.Install(sta_nodes)
     
     ns3.Ipv4GlobalRoutingHelper.PopulateRoutingTables()
-    return Struct("Network", nodes=nodes, phy=phy)
+    return Struct("Network", nodes=nodes)
