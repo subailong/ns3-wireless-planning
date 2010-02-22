@@ -7,6 +7,7 @@ import sys
 import itertools
 from datetime import datetime
 import pprint
+import math
 
 from odict import odict
 
@@ -100,6 +101,38 @@ def iter_block(lines, startre, endre):
         yield line
         if re.match(endre, line):
             break
+
+# Geographic functions
+
+# http://www.platoscave.net/blog/2009/oct/5/calculate-distance-latitude-longitude-python/
+def get_distance(origin, destination):
+    """Calculate distance between two points using WGS84 coordinates."""    
+    lat1, lon1 = origin
+    lat2, lon2 = destination
+    radius = 6371
+    dlat = math.radians(lat2-lat1)
+    dlon = math.radians(lon2-lon1)
+    a = math.sin(dlat/2) * math.sin(dlat/2) + math.cos(math.radians(lat1)) \
+        * math.cos(math.radians(lat2)) * math.sin(dlon/2) * math.sin(dlon/2)
+    c = 2 * math.atan2(math.sqrt(a), math.sqrt(1-a))
+    d = radius * c
+    return d
+
+def get_lat_long_from_string(line):
+    def _string_to_float(string):
+        h, m, s, section = re.match("(\d+).*?(\d+).*?(\d+).*?([NSWE])", string).groups()
+        value = float(h) + float(m) / 60.0 + float(s) / 3600.0
+        return (value if section in ('N', 'E') else -value)
+    lat, lon = map(_string_to_float, line.split()[:2])
+    return (lat, lon)
+    
+# test!
+#s = """13°31'52"S 071°55'49"W"""
+#unit1 = get_lat_long_from_string(s)
+#s = """13°35'52"S 072°55'49"W"""
+#unit2 = get_lat_long_from_string(s)
+#print distance(unit1, unit2)
+   
     
 # Radiomobile functions
 
@@ -139,13 +172,14 @@ def parse_systems(lines):
     headers = ["Name", "Pwr Tx", "Loss", "Loss (+)", "Rx thr.", "Ant. G.", "Ant. Type"]
     return create_odict_from_items("system", "name", parse_table(lines, headers))
 
-def get_net_links(rows, grid_field):
+def get_net_links(rows, grid_field, units):
     """Parse a quality grid and return dictionary with information.""" 
     def get_quality(lst):
         s = "".join(lst).strip()
         return (int(s) if s else None)
     def clean_node(node):
-        return dict((k, v) for (k, v) in node.iteritems() if not k.startswith("#"))
+        items = dict((k, v) for (k, v) in node.iteritems() if not k.startswith("#"))
+        return Struct("Node", **items)
     
     for nrow, row in enumerate(rows[:-1]):
         qualities = map(get_quality, grouper(3, row[grid_field][3:], ''))
@@ -153,14 +187,19 @@ def get_net_links(rows, grid_field):
             if not quality or nrow >= npeer_row:
                 continue
             peer_row = rows[npeer_row]
+            node1, node2 = map(clean_node, [row, peer_row])
+            coord_unit1 = get_lat_long_from_string(units[node1.net_members].location)
+            coord_unit2 = get_lat_long_from_string(units[node2.net_members].location)
+            distance = get_distance(coord_unit1, coord_unit2) 
             link = {            
                 "quality": quality,
-                "node1": clean_node(row),
-                "node2": clean_node(peer_row),
+                "node1": node1,
+                "node2": node2,
+                "distance": distance,
             }
             yield link
 
-def parse_active_nets(lines):
+def parse_active_nets(lines, units):
     """Return an orderd dict with nets, each containing a list of links.""" 
     nets_lines = list(split_iter_of_consecutive(lines[1:], lambda s: not s.strip(), 2))
     nets = odict()
@@ -173,15 +212,19 @@ def parse_active_nets(lines):
         grid_field = re.match("Net members:\s*(.*?)\s*Role:", table[0]).group(1)
         grid_fields = ["Net members:", grid_field, "Role:", "System:", "Antenna:"]    
         rows = list(parse_table(table, grid_fields, lambda s: not s.startswith('#')))
-        links0 = list(get_net_links(rows, grid_field))
         net_members = create_odict_from_items("net_member", "net_members", rows)        
         links = []
-        for link in links0:
-            peers = (link["node1"]["net_members"], link["node2"]["net_members"])
-            link = Struct("Link", peers=peers, quality=link["quality"])
+        for link in get_net_links(rows, grid_field, units):
+            peers = (link["node1"].net_members, link["node2"].net_members)
+            link = Struct("Link", 
+                peers=peers, 
+                quality=link["quality"], 
+                distance=link["distance"])
             links.append(link)
-        nets[name] = Struct("Network", name=name, net_members=net_members,
-            links=links, max_quality=max_quality)
+        nets[name] = Struct("Network", name=name, 
+            net_members=net_members,
+            links=links, 
+            max_quality=max_quality)
     return nets                
 
 def get_units_for_network(net, role=None):
@@ -206,12 +249,13 @@ def parse_report(filename):
     generated_on = parse_header(splitted_lines[0])
     sections = dict((keyify(key[0]), val) for (key, val) in grouper(2, splitted_lines[1:]))
     
+    units = parse_active_units(sections["active_units_information"])
     return Struct("RadioMobileReport",
         generated_on=generated_on,
         general_information=sections["general_information"],
-        units=parse_active_units(sections["active_units_information"]),
+        units=units,
         systems=parse_systems(sections["systems"]),
-        nets=parse_active_nets(sections["active_nets_information"]))
+        nets=parse_active_nets(sections["active_nets_information"], units))
 
 
 def main(args):    
