@@ -30,7 +30,8 @@ def run_simulation(network):
     # Tracing
     josjo1 = network.nodes["JOSJOJAHUARINA 1"]
     device = josjo1.devices['Josjo 1 Sectorial PC'].ns3_device
-    network.phy.EnablePcap("udp_echo", device)
+    phy = josjo1.devices['Josjo 1 Sectorial PC'].phy_helper
+    phy.EnablePcap("udp_echo", device)
 
     # Run simulation    
     ns3.Simulator.Stop(ns3.Seconds(10.0))

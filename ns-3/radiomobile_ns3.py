@@ -23,14 +23,17 @@ def debug(line):
         sys.stderr.write(line + "\n")
         sys.stderr.flush()
 
-def add_devices_to_node(network, ns3node_to_node, nodes, devices):
+def add_devices_to_node(network, ns3node_to_node, nodes, devices, phy_helper):
     """Add new devices to node.devices dictionary."""
     for index in range(devices.GetN()):
         ns3_device = devices.Get(index)
         ns3_node = (nodes if type(nodes) == ns3.Node else nodes.Get(index))
         node = ns3node_to_node[ns3_node.GetId()]
         system = network.net_members[node.name].system
-        device = Struct("Device", ns3_device=ns3_device, interfaces=[])
+        device = Struct("Device",
+            ns3_device=ns3_device,
+            phy_helper=phy_helper,
+            interfaces=[])
         node.devices[system] = device
 
 def add_interfaces_to_device(network, ns3node_to_node, nodes, interfaces):
@@ -88,7 +91,7 @@ def create_network(report):
             "Ssid", ns3.SsidValue(ssid),
             "ActiveProbing", ns3.BooleanValue(False))
         sta_devices = wifi.Install(phy, mac, sta_nodes)
-        add_devices_to_node(network, ns3node_to_node, sta_nodes, sta_devices)
+        add_devices_to_node(network, ns3node_to_node, sta_nodes, sta_devices, phy)
 
         # AP devices
         mac = ns3.NqosWifiMacHelper.Default()
@@ -97,7 +100,7 @@ def create_network(report):
             "BeaconGeneration", ns3.BooleanValue(True),
             "BeaconInterval", ns3.TimeValue(ns3.Seconds(2.5)))
         ap_devices = wifi.Install(phy, mac, ap_node)
-        add_devices_to_node(network, ns3node_to_node, ap_node, ap_devices)
+        add_devices_to_node(network, ns3node_to_node, ap_node, ap_devices, phy)
         
         # Set IP addresses
         address = ns3.Ipv4AddressHelper()
