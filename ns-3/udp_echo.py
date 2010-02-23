@@ -10,6 +10,7 @@ ns3.LogComponentEnable("UdpEchoClientApplication", ns3.LOG_LEVEL_INFO)
 ns3.LogComponentEnable("UdpEchoServerApplication", ns3.LOG_LEVEL_INFO)
 
 def run_simulation(network):
+    print "distance between CCATCCA and URCOS", distance
     # Applications
     server = network.nodes["CCATCCA"]    
     server_address = server.devices["Uuario Final PCMCIA"].interfaces[0].address

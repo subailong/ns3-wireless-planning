@@ -53,7 +53,7 @@ def generate_simple_text_report(report):
         slaves = radiomobile.get_units_for_network(attrs, 'Slave') + \
             radiomobile.get_units_for_network(attrs, 'Terminal')
         assert (len(slaves) >= 1), "Need at least one slave/terminal in a network"
-        net.append("\t".join(["Node", "Role", "Distance to Master [km]"]))
+        net.append("\t".join(["Node", "Role", "Distance to AP [km]"]))
         master_location = report.units[master].location
         for member_name, member_attrs in attrs.net_members.iteritems():
             member_location = report.units[member_name].location
