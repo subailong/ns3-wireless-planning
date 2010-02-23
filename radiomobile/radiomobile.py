@@ -104,37 +104,38 @@ def iter_block(lines, startre, endre):
 
 # Geographic functions
 
-# http://www.platoscave.net/blog/2009/oct/5/calculate-distance-latitude-longitude-python/
 def get_distance(origin, destination):
-    """Calculate distance between two points using WGS84 coordinates."""    
+    """Calculate distance for two WGS84 coordinates using Haversine formula."""
     lat1, lon1 = origin
     lat2, lon2 = destination
     radius = 6371
-    dlat = math.radians(lat2-lat1)
-    dlon = math.radians(lon2-lon1)
-    a = math.sin(dlat/2) * math.sin(dlat/2) + math.cos(math.radians(lat1)) \
-        * math.cos(math.radians(lat2)) * math.sin(dlon/2) * math.sin(dlon/2)
-    c = 2 * math.atan2(math.sqrt(a), math.sqrt(1-a))
+    sin, cos, rad = math.sin, math.cos, math.radians
+    dlat = rad(lat2 - lat1)
+    dlon = rad(lon2 - lon1)
+    a = sin(dlat/2)**2 + (cos(rad(lat1)) * cos(rad(lat2)) * sin(dlon/2)**2)
+    c = 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))
     d = radius * c
     return d
+  
+# Radiomobile functions
 
-def get_lat_long_from_string(line):
+def get_lat_lon_from_string(line):
+    """
+    Return tuple (latitude, longitude) for a coordinates string.
+    
+    Example line: 13°31'52"S 071°55'49"W
+    """
     def _string_to_float(string):
         h, m, s, section = re.match("(\d+).*?(\d+).*?(\d+).*?([NSWE])", string).groups()
-        value = float(h) + float(m) / 60.0 + float(s) / 3600.0
+        value = float(h) + (float(m) / 60.0) + (float(s) / 3600.0)
         return (value if section in ('N', 'E') else -value)
     lat, lon = map(_string_to_float, line.split()[:2])
-    return (lat, lon)
-    
-# test!
-#s = """13°31'52"S 071°55'49"W"""
-#unit1 = get_lat_long_from_string(s)
-#s = """13°35'52"S 072°55'49"W"""
-#unit2 = get_lat_long_from_string(s)
-#print distance(unit1, unit2)
-   
-    
-# Radiomobile functions
+    return (lat, lon)  
+
+def get_distance_between_locations(location1, location2):
+    coord1 = get_lat_lon_from_string(location1) 
+    coord2 = get_lat_lon_from_string(location2)
+    return get_distance(coord1, coord2)
 
 def create_odict_from_items(name, key, dictlst):
     """
@@ -152,15 +153,14 @@ def parse_header(lines):
     Check that the headers contain a valid RadioMobile identifier and return
     the generation report date.
     """     
-    slines = strip_iter_items(lines)
-    if len(slines) != 2:
-        raise ValueError, "Unknown header: %s" % slines[:2]
-    title, generated_on = slines
+    if len(lines) != 3:
+        raise ValueError, "Unknown header: %s" % lines
+    metadata, title, generated_on = lines
     expected_title = "Radio Mobile" 
     if title != expected_title:
         raise ValueError, "Unknown header title: %s (expected: %s)" % (title, expected_title)
     info = " ".join(generated_on.split()[-3:])
-    return datetime.strptime(info, "%H:%M:%S on %d-%m-%Y")
+    return datetime.strptime(info, "%H:%M:%S on %m-%d-%Y")
 
 def parse_active_units(lines):
     """Return orderect dict containing (name, attributes) pairs for units."""
@@ -188,9 +188,10 @@ def get_net_links(rows, grid_field, units):
                 continue
             peer_row = rows[npeer_row]
             node1, node2 = map(clean_node, [row, peer_row])
-            coord_unit1 = get_lat_long_from_string(units[node1.net_members].location)
-            coord_unit2 = get_lat_long_from_string(units[node2.net_members].location)
-            distance = get_distance(coord_unit1, coord_unit2) 
+            location1 = units[node1.net_members].location
+            location2 = units[node2.net_members].location
+            distance = get_distance_between_locations(location1, location2)
+             
             link = {            
                 "quality": quality,
                 "node1": node1,
