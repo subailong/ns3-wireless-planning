@@ -33,10 +33,9 @@ def first(it):
     """Return first item in iterable."""
     return it.next()
 
-def grouper(n, iterable, fillvalue=None):
-    "grouper(3, 'ABCDEFG', 'x') --> ABC DEF Gxx"
-    args = [iter(iterable)] * n
-    return itertools.izip_longest(fillvalue=fillvalue, *args)
+def grouper(n, iterable, padvalue=None):
+    "grouper(3, 'abcdefg', 'x') --> ('a','b','c'), ('d','e','f'), ('g','x','x')"
+    return itertools.izip(*[itertools.chain(iterable, itertools.repeat(padvalue, n-1))]*n)
 
 def flatten(lst):
     """Flat one level of lst."""
