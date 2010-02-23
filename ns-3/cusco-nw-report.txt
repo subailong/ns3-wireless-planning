@@ -1,0 +1,121 @@
+﻿
+Radio Mobile
+Report generated at 12:13:46 on 02-23-2010
+---------------------------------------------------------------------------
+General information
+---------------------------------------------------------------------------
+Net file      Z:\HOME\ARNAU\FREELANCE\EHAS\RADIOMOBILE\NS-3\CUSCO-NW\CUSCO-NW.NET
+Map file      Z:\HOME\ARNAU\FREELANCE\EHAS\RADIOMOBILE\NS-3\CUSCO-NW\CUSCO-NW.MAP
+Map centre    09°22'35"S 074°57'55"W FI20MO
+Map size      50,0 km N-S, 100,30 E-W
+---------------------------------------------------------------------------
+Active units information
+---------------------------------------------------------------------------
+Name                Location                                     Elevation
+
+Josjojauarina 1     09°19'11"S 075°08'45"W FI20KQ              280,0m
+Josjojauarina 2     09°16'01"S 074°56'53"W FI20MR              217,0m
+Ccatcca             09°12'33"S 074°49'06"W FI20OS              367,1m
+Kcauri              09°18'46"S 074°48'47"W FI20OQ              839,9m
+Urpay               09°19'45"S 075°17'41"W FI20IQ              247,0m
+Huiracochan         09°25'37"S 075°12'57"W FI20JN              254,0m
+Urcos               09°29'52"S 075°07'22"W FI20KM              274,0m
+---------------------------------------------------------------------------
+Systems
+---------------------------------------------------------------------------
+Name                Pwr Tx    Loss  Loss (+)  Rx thr.   Ant. G. Ant. Type
+
+Sistema   1         10,000W   0,5dB 0,000dB/m -107,0dBm 2,0dBi  omni.ant
+Sistema   2         10,000W   0,5dB 0,000dB/m -107,0dBm 2,0dBi  omni.ant
+Sistema   3         10,000W   0,5dB 0,000dB/m -107,0dBm 2,0dBi  omni.ant
+Sistema   4         10,000W   0,5dB 0,000dB/m -107,0dBm 2,0dBi  omni.ant
+Sistema   5         10,000W   0,5dB 0,000dB/m -107,0dBm 2,0dBi  omni.ant
+Sistema   6         10,000W   0,5dB 0,000dB/m -107,0dBm 2,0dBi  omni.ant
+Sistema   7         10,000W   0,5dB 0,000dB/m -107,0dBm 2,0dBi  omni.ant
+Sistema   8         10,000W   0,5dB 0,000dB/m -107,0dBm 2,0dBi  omni.ant
+Sistema   9         10,000W   0,5dB 0,000dB/m -107,0dBm 2,0dBi  omni.ant
+Sistema  10         10,000W   0,5dB 0,000dB/m -107,0dBm 2,0dBi  omni.ant
+Sistema  11         10,000W   0,5dB 0,000dB/m -107,0dBm 2,0dBi  omni.ant
+Sistema  12         10,000W   0,5dB 0,000dB/m -107,0dBm 2,0dBi  omni.ant
+Sistema  13         10,000W   0,5dB 0,000dB/m -107,0dBm 2,0dBi  omni.ant
+Sistema  14         10,000W   0,5dB 0,000dB/m -107,0dBm 2,0dBi  omni.ant
+Sistema  15         10,000W   0,5dB 0,000dB/m -107,0dBm 2,0dBi  omni.ant
+Sistema  16         10,000W   0,5dB 0,000dB/m -107,0dBm 2,0dBi  omni.ant
+Sistema  17         10,000W   0,5dB 0,000dB/m -107,0dBm 2,0dBi  omni.ant
+Sistema  18         10,000W   0,5dB 0,000dB/m -107,0dBm 2,0dBi  omni.ant
+Sistema  19         10,000W   0,5dB 0,000dB/m -107,0dBm 2,0dBi  omni.ant
+Sistema  20         10,000W   0,5dB 0,000dB/m -107,0dBm 2,0dBi  omni.ant
+Sistema  21         10,000W   0,5dB 0,000dB/m -107,0dBm 2,0dBi  omni.ant
+Sistema  22         10,000W   0,5dB 0,000dB/m -107,0dBm 2,0dBi  omni.ant
+Sistema  23         10,000W   0,5dB 0,000dB/m -107,0dBm 2,0dBi  omni.ant
+Sistema  24         10,000W   0,5dB 0,000dB/m -107,0dBm 2,0dBi  omni.ant
+Sistema  25         10,000W   0,5dB 0,000dB/m -107,0dBm 2,0dBi  omni.ant
+---------------------------------------------------------------------------
+Active nets information
+---------------------------------------------------------------------------
+
+Josjo1-Josjo2 [wifia-6m]      
+Topology Star
+144,0 MHz to 148,0 MHz
+Vertical polarization
+Mode of variability is Spot, at
+70% of situations
+Refractivity= 301 N-units, conductivity= 0,005 S/m, permittivity= 15
+Continental temperate climate
+
+Net members:               #  01 02 Role:         System:             Antenna:
+Josjojauarina 1            01    57 Master        Sistema   1         2,0m
+Josjojauarina 2            02 57    Slave         Sistema   1         2,0m
+
+                           Quality = 50 - number of resend
+
+
+Josjo2 [wifib-2m]             
+Topology Star
+144,0 MHz to 148,0 MHz
+Vertical polarization
+Mode of variability is Spot, at
+70% of situations
+Refractivity= 301 N-units, conductivity= 0,005 S/m, permittivity= 15
+Continental temperate climate
+
+Net members:               #  01 02 03 Role:         System:             Antenna:
+Josjojauarina 2            01    60 77 Master        Sistema   1         2,0m
+Ccatcca                    02 60       Slave         Sistema   1         2,0m
+Kcauri                     03 77       Slave         Sistema   1         2,0m
+
+                           Quality = 50 - number of resend
+
+
+Josjo1 [wifib-2m]             
+Topology Star
+144,0 MHz to 148,0 MHz
+Vertical polarization
+Mode of variability is Spot, at
+70% of situations
+Refractivity= 301 N-units, conductivity= 0,005 S/m, permittivity= 15
+Continental temperate climate
+
+Net members:               #  01 02 03 Role:         System:             Antenna:
+Josjojauarina 1            01    62 81 Master        Sistema   1         2,0m
+Urpay                      02 62       Slave         Sistema   1         2,0m
+Huiracochan                03 81       Slave         Sistema   1         2,0m
+
+                           Quality = 50 - number of resend
+
+
+Huiracochan [wifib-2m]        
+Topology Star
+144,0 MHz to 148,0 MHz
+Vertical polarization
+Mode of variability is Spot, at
+70% of situations
+Refractivity= 301 N-units, conductivity= 0,005 S/m, permittivity= 15
+Continental temperate climate
+
+Net members:               #  01 02 Role:         System:             Antenna:
+Huiracochan                01    74 Master        Sistema   1         2,0m
+Urcos                      02 74    Slave         Sistema   1         2,0m
+
+                           Quality = 50 - number of resend
+
