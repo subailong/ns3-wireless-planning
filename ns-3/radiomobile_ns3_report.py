@@ -1,6 +1,42 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*
-"""Parse radiomobile report.txt file and generate a simple txt file."""
+"""
+Parse radiomobile report.txt file and generate a simple txt file.
+
+Example:
+
+= Network General information
+
+Netfile: CUSCO-NW.NET
+Generated: 2010-02-23T12:13:46
+
+= Nodes
+
+Josjojauarina 1
+Josjojauarina 2
+Ccatcca
+Kcauri
+
+= Nets
+
+== Josjo1-Josjo2
+
+Mode: wifia-6m
+
+Node	Role	Distance to AP [km]
+Josjojauarina 1	AP	0.00
+Josjojauarina 2	STA	22.48
+
+== Josjo2
+
+Mode: wifib-2m
+
+Node	Role	Distance to AP [km]
+Josjojauarina 2	AP	0.00
+Ccatcca	STA	15.62
+Kcauri	STA	15.67
+
+"""
 import os
 import re
 import sys
@@ -11,12 +47,23 @@ import pprint
 import radiomobile
 
 def build_output_from_sections(sections):
+    """Build a string from list of sections with tuple (title, lines). Output is:
+        
+    = section1 title
+    [blank space]
+    line1
+    line2
+    [blank space]
+    = section2 title
+    [...]
+    """
     def _section(name, lines):
         return ["= %s" % name, ""] + list(lines)
     sections_output = ("\n".join(_section(name, lines)) for (name, lines) in sections)
     return "\n\n".join(sections_output) + "\n"
 
 def join_list(lstlst, joinval):
+    """Join list of list with a join value and return a 1-level flattened list."""
     for index, lst in enumerate(lstlst):
         for x in lst:
             yield x
@@ -24,6 +71,7 @@ def join_list(lstlst, joinval):
             yield joinval 
         
 def generate_simple_text_report(report):
+    """Return string containing a simple text report from Radiomobile report."""        
     sections = []
     
     # General information
@@ -62,16 +110,15 @@ def generate_simple_text_report(report):
                     master_location, member_location)
             else:
                 distance = 0.0
-            droles = {
+            roles = {
                 "Master": "AP",
                 "Node": "AP",
                 "Slave": "STA",
                 "Terminal": "STA",            
             }
-            assert (member_attrs.role in droles), "Role should be one of: %s" \
-                ", ".join(droles.keys())
-            role = droles[member_attrs.role]  
-            member_info = [member_name, role, "%0.2f" % distance]
+            assert (member_attrs.role in roles), "Role should be one of: %s" \
+                ", ".join(roles.keys())
+            member_info = [member_name, roles[member_attrs.role], "%0.2f" % distance]
             net.append("\t".join(member_info))
         nets.append(net)
     sections.append(["Nets", join_list(nets, "")])

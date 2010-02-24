@@ -40,6 +40,17 @@ class RadioMobileReportTest(unittest.TestCase):
         self.assertEqual(["", "Josjojauarina 1", "Josjojauarina 2", "Ccatcca",
             "Kcauri", "Urpay", "Huiracochan", "Urcos", ""], contents)
 
-                
+    def test_nets(self):
+        title, contents = self.sections[2]
+        self.assertEqual("= Nets", title[0])
+        nets = list(grouper(2, split_iter(contents[1:], lambda s: s.startswith("== "))))
+        net1_title, net1_contents = nets[0]
+        self.assertEqual("== Josjo1-Josjo2", net1_title[0])
+        self.assertEqual(['', 'Mode: wifia-6m', '', 
+            'Node\tRole\tDistance to AP [km]',
+            'Josjojauarina 1\tAP\t0.00',
+            'Josjojauarina 2\tSTA\t22.48', ''], net1_contents)
+
+
 if __name__ == '__main__':
     unittest.main()
