@@ -26,19 +26,23 @@ class RadioMobileReportTest(unittest.TestCase):
         path = os.path.join(os.path.dirname(__file__), filename)
         self.report = radiomobile.parse_report(path)
         data = radiomobile_ns3_report.generate_simple_text_report(self.report)
-        self.sections = list(grouper(2, split_iter(data.splitlines(), lambda s: s.startswith("= "))))
+        self.sections = list(grouper(2, split_iter(data.splitlines(), 
+            lambda s: s.startswith("= "))))
 
     def test_general_information(self):
         title, contents = self.sections[0]
-        self.assertEqual("= Network General information", title[0])
+        self.assertEqual("= General information", title[0])
         self.assertEqual(["", "Netfile: CUSCO-NW.NET", "Generated: 2010-02-23T12:13:46", ""],
             contents)
 
     def test_nodes(self):
         title, contents = self.sections[1]
         self.assertEqual("= Nodes", title[0])
-        self.assertEqual(["", "Josjojauarina 1", "Josjojauarina 2", "Ccatcca",
-            "Kcauri", "Urpay", "Huiracochan", "Urcos", ""], contents)
+        self.assertEqual(["Josjojauarina 1", "Josjojauarina 2", "Ccatcca",
+            "Kcauri", "Urpay", "Huiracochan", "Urcos"], 
+            [s.split("\t")[0] for s in contents[1:-1]])
+        self.assertEqual(['Josjojauarina 1', '-9.31972,-75.14583', '0,0'], 
+            contents[1].split("\t"))
 
     def test_nets(self):
         title, contents = self.sections[2]

@@ -1,51 +1,22 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*
 """
-Parse radiomobile report.txt file and generate a simple txt file.
-
-Example:
-
-= Network General information
-
-Netfile: CUSCO-NW.NET
-Generated: 2010-02-23T12:13:46
-
-= Nodes
-
-Josjojauarina 1
-Josjojauarina 2
-Ccatcca
-Kcauri
-
-= Nets
-
-== Josjo1-Josjo2
-
-Mode: wifia-6m
-
-Node	Role	Distance to AP [km]
-Josjojauarina 1	AP	0.00
-Josjojauarina 2	STA	22.48
-
-== Josjo2
-
-Mode: wifib-2m
-
-Node	Role	Distance to AP [km]
-Josjojauarina 2	AP	0.00
-Ccatcca	STA	15.62
-Kcauri	STA	15.67
-
+Parse radiomobile report.txt file and generate a simple txt file, showing:
+    
+- General information
+- Nodes (name, WSG84 coordinates, XY-meter positions)
+- Networks (name, node members/roles/distance to AP    
 """
 import os
 import re
 import sys
+import math
 import itertools
 from datetime import datetime
 import pprint
 
 import radiomobile
-
+      
 def build_output_from_sections(sections):
     """Build a string from list of sections with tuple (title, lines). Output is:
         
@@ -81,15 +52,23 @@ def generate_simple_text_report(report):
     generated = report.generated_on.isoformat()
     information.append("Generated: %s" % generated)
     
-    sections.append(["Network General information", information])
+    sections.append(["General information", information])
     
     # Nodes
-    sections.append(["Nodes", report.units.keys()])               
+    nodes = []
+    for name, unit in report.units.iteritems():
+        coords = ",".join(["%0.5f" % x for x in unit.location_coords])
+        position = ",".join(map(str, unit.location_meters))
+        nodes.append("\t".join([name, coords, position]))
+    sections.append(["Nodes", nodes])               
 
     # Active networks
     nets = []
     for complete_name, attrs in report.nets.iteritems():
-        name, options = re.match("^(.*?)\s*\[(.*)\]$", complete_name).groups()
+        match = re.match("^(.*?)\s*\[(.*)\]$", complete_name)
+        if not match:
+            raise ValueError, "Wrong name for network. Expected: 'Netname [ns3linkname]'"
+        name, options = match.groups()
         mode = options        
         net = []
         net.extend(["== " + name, ""])
@@ -128,7 +107,7 @@ def generate_simple_text_report(report):
   
 def main(args):    
     if len(args) != 1:
-        debug("Usage: %s REPORT_TXT_PATH" % os.path.basename(sys.argv[0]))
+        debug("Usage: %s RADIOMOBILE_REPORT_FILE" % os.path.basename(sys.argv[0]))
         return 2
     text_report_filename, = args
     report = radiomobile.parse_report(text_report_filename)
