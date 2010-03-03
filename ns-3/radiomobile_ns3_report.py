@@ -16,10 +16,10 @@ Generated: 2010-02-23T12:13:46
 
 = Nodes
 
-Josjojauarina 1	-9.31972,-75.14583	0,0
-Josjojauarina 2	-9.26694,-74.94806	21728,5837
-Ccatcca	-9.20917,-74.81833	35979,12228
-Kcauri	-9.31278,-74.81306	36559,768
+Josjojauarina 1	280	-9.31972,-75.14583	0,0
+Josjojauarina 2	217	-9.26694,-74.94806	21728,5837
+Ccatcca	367	-9.20917,-74.81833	35979,12228
+Kcauri	839	-9.31278,-74.81306	36559,768
 
 = Nets
 
@@ -92,7 +92,7 @@ def generate_simple_text_report(report):
     for name, unit in report.units.iteritems():
         coords = ",".join(["%0.5f" % x for x in unit.location_coords])
         position = ",".join(map(str, unit.location_meters))
-        nodes.append("\t".join([name, coords, position]))
+        nodes.append("\t".join([name, str(unit.elevation), coords, position]))
     sections.append(["Nodes", nodes])               
 
     # Active networks

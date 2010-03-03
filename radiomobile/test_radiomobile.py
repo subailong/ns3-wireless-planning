@@ -34,7 +34,7 @@ class RadioMobileReportTest(unittest.TestCase):
         units = self.report.units
         urpay = units["URPAY"]        
         self.assertEqual("""13°42'42"S 071°39'55"W 19L BE 11727 82575""", urpay.location) 
-        self.assertEqual("3420.0m", urpay.elevation) 
+        self.assertEqual(3420, urpay.elevation) 
             
     def test_systems(self):
         systems = self.report.systems

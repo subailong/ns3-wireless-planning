@@ -117,6 +117,7 @@ def get_distance(origin, destination):
     return d
 
 def get_position_from_reference(coordinates, reference):
+    """Get relative position of coordinates given a reference (see get_reference())."""
     lat, lon = map(math.radians, coordinates)
     lat0, lon0, r1, r2 = reference
     x = int(round(r2 * math.cos(lat0) * (lon -lon0)))
@@ -124,6 +125,7 @@ def get_position_from_reference(coordinates, reference):
     return (x, y)
 
 def get_reference(coordinates):
+    """Calculate R1/R2 reference to calculate relative positions."""
     lat0, lon0 = map(math.radians, coordinates)
     a = 6378137
     f = 1 / 298.257223563
@@ -186,6 +188,8 @@ def parse_active_units(lines):
         for name, unit in units.iteritems():
             coords = get_lat_lon_from_string(unit.location)
             units[name].location_coords = coords
+            elevation = int(float(re.match("([\d.]+)", unit.elevation).group(1)))
+            units[name].elevation = elevation 
         unit1 = units.itervalues().next()
         reference = get_reference(unit1.location_coords)
         for name, unit in units.iteritems():

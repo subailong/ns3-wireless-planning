@@ -32,7 +32,8 @@ class RadioMobileReportTest(unittest.TestCase):
     def test_general_information(self):
         title, contents = self.sections[0]
         self.assertEqual("= General information", title[0])
-        self.assertEqual(["", "Netfile: CUSCO-NW.NET", "Generated: 2010-02-23T12:13:46", ""],
+        self.assertEqual(
+            ["", "Netfile: CUSCO-NW.NET", "Generated: 2010-02-23T12:13:46", ""],
             contents)
 
     def test_nodes(self):
@@ -41,7 +42,7 @@ class RadioMobileReportTest(unittest.TestCase):
         self.assertEqual(["Josjojauarina 1", "Josjojauarina 2", "Ccatcca",
             "Kcauri", "Urpay", "Huiracochan", "Urcos"], 
             [s.split("\t")[0] for s in contents[1:-1]])
-        self.assertEqual(['Josjojauarina 1', '-9.31972,-75.14583', '0,0'], 
+        self.assertEqual(['Josjojauarina 1', '280', '-9.31972,-75.14583', '0,0'], 
             contents[1].split("\t"))
 
     def test_nets(self):
