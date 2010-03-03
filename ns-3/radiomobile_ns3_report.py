@@ -5,7 +5,40 @@ Parse radiomobile report.txt file and generate a simple txt file, showing:
     
 - General information
 - Nodes (name, WSG84 coordinates, XY-meter positions)
-- Networks (name, node members/roles/distance to AP    
+- Networks (name, node members/roles/distance to AP.
+
+Example:
+    
+= General information
+
+Netfile: CUSCO-NW.NET
+Generated: 2010-02-23T12:13:46
+
+= Nodes
+
+Josjojauarina 1	-9.31972,-75.14583	0,0
+Josjojauarina 2	-9.26694,-74.94806	21728,5837
+Ccatcca	-9.20917,-74.81833	35979,12228
+Kcauri	-9.31278,-74.81306	36559,768
+
+= Nets
+
+== Josjo1-Josjo2
+
+Mode: wifia-6m
+
+Node	Role	Distance to AP [km]
+Josjojauarina 1	AP	0.00
+Josjojauarina 2	STA	22.48
+
+== Josjo2
+
+Mode: wifib-2m
+
+Node	Role	Distance to AP [km]
+Josjojauarina 2	AP	0.00
+Ccatcca	STA	15.62
+Kcauri	STA	15.67        
 """
 import os
 import re
