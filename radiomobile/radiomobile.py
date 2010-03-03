@@ -115,6 +115,23 @@ def get_distance(origin, destination):
     c = 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))
     d = radius * c
     return d
+
+def get_position_from_reference(coordinates, reference):
+    lat, lon = map(math.radians, coordinates)
+    lat0, lon0, r1, r2 = reference
+    x = int(round(r2 * math.cos(lat0) * (lon -lon0)))
+    y = int(round(r1 * (lat - lat0)))
+    return (x, y)
+
+def get_reference(coordinates):
+    lat0, lon0 = map(math.radians, coordinates)
+    a = 6378137
+    f = 1 / 298.257223563
+    e2 = f * (2 - f)     
+    r1 = (a * (1 - e2)) / ((1 - e2 * (math.sin(lat0))**2)**(3.0/2))
+    r2 = a / math.sqrt(1 - e2 * (math.sin(lat0))**2)
+    return (lat0, lon0, r1, r2)
+
   
 # Radiomobile functions
 
@@ -164,7 +181,17 @@ def parse_header(lines):
 def parse_active_units(lines):
     """Return orderect dict containing (name, attributes) pairs for units."""
     headers = ["Name", "Location", "Elevation"]
-    return create_odict_from_items("unit", "name", parse_table(lines, headers))
+    units = create_odict_from_items("unit", "name", parse_table(lines, headers))
+    if units:
+        for name, unit in units.iteritems():
+            coords = get_lat_lon_from_string(unit.location)
+            units[name].location_coords = coords
+        unit1 = units.itervalues().next()
+        reference = get_reference(unit1.location_coords)
+        for name, unit in units.iteritems():
+            units[name].location_meters = \
+                get_position_from_reference(unit.location_coords, reference)        
+    return units
             
 def parse_systems(lines):
     """Return orderect dict containing (name, attributes) pairs for systems."""

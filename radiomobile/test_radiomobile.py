@@ -12,6 +12,15 @@ class RadioMobileReportTest(unittest.TestCase):
         filename = "radiomobile_report_test.txt"
         path = os.path.join(os.path.dirname(__file__), filename)
         self.report = radiomobile.parse_report(path)
+
+    def test_get_position_from_reference(self):
+      unit1 = (40.86, 0.16)
+      unit2 = (41.38, 2.17)
+      reference = radiomobile.get_reference(unit1)
+      position1 = radiomobile.get_position_from_reference(unit1, reference)
+      self.assertEqual(position1, (0.0, 0.0))
+      position2 = radiomobile.get_position_from_reference(unit2, reference)
+      self.assertEqual(position2, (169469, 57747))
               
     def test_generated_on(self):
         self.assertEqual(datetime(2007, 7, 4, 17, 38, 51), self.report.generated_on)
