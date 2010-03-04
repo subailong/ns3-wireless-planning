@@ -104,7 +104,7 @@ def iter_block(lines, startre, endre):
 # Geographic functions
 
 def get_distance(origin, destination):
-    """Calculate distance for two WGS84 coordinates using Haversine formula."""
+    """Calculate distance (meters) for two WGS84 coordinates using Haversine formula."""
     lat1, lon1 = origin
     lat2, lon2 = destination
     radius = 6371
@@ -114,10 +114,13 @@ def get_distance(origin, destination):
     a = sin(dlat/2)**2 + (cos(rad(lat1)) * cos(rad(lat2)) * sin(dlon/2)**2)
     c = 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))
     d = radius * c
-    return d
+    return int(1000.0 * d)
 
 def get_position_from_reference(coordinates, reference):
-    """Get relative position of coordinates given a reference (see get_reference())."""
+    """Get relative position of coordinates given a reference.
+    
+    It uses the local, flat earth approximation. See:        
+    http://williams.best.vwh.net/avform.htm#flat"""
     lat, lon = map(math.radians, coordinates)
     lat0, lon0, r1, r2 = reference
     x = int(round(r2 * math.cos(lat0) * (lon -lon0)))

@@ -66,7 +66,7 @@ class RadioMobileReportTest(unittest.TestCase):
         links = net1.links
         
         link1, link2 = links       
-        self.assertEqual(10.756553299251067, link1.distance)
+        self.assertEqual(10756, link1.distance)
         self.assertEqual(50, link1.quality)
         self.assertEqual(('URPAY', 'JOSJOJAHUARINA 1'), link1.peers)        
 

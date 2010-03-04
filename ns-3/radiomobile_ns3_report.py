@@ -27,18 +27,18 @@ Kcauri	839	-9.31278,-74.81306	36559,768
 
 Mode: wifia-6m
 
-Node	Role	Distance to AP [km]
-Josjojauarina 1	AP	0.00
-Josjojauarina 2	STA	22.48
+Node	Role	Distance to AP 
+Josjojauarina 1	AP	0
+Josjojauarina 2	STA	22480
 
 == Josjo2
 
 Mode: wifib-2m
 
-Node	Role	Distance to AP [km]
-Josjojauarina 2	AP	0.00
-Ccatcca	STA	15.62
-Kcauri	STA	15.67        
+Node	Role	Distance to AP
+Josjojauarina 2	AP	0
+Ccatcca	STA	15620
+Kcauri	STA	15670        
 """
 import os
 import re
@@ -113,7 +113,7 @@ def generate_simple_text_report(report):
         slaves = radiomobile.get_units_for_network(attrs, 'Slave') + \
             radiomobile.get_units_for_network(attrs, 'Terminal')
         assert (len(slaves) >= 1), "Need at least one slave/terminal in a network"
-        net.append("\t".join(["Node", "Role", "Distance to AP [km]"]))
+        net.append("\t".join(["Node", "Role", "Distance to AP"]))
         master_location = report.units[master].location
         for member_name, member_attrs in attrs.net_members.iteritems():
             member_location = report.units[member_name].location
@@ -121,7 +121,7 @@ def generate_simple_text_report(report):
                 distance = radiomobile.get_distance_between_locations(
                     master_location, member_location)
             else:
-                distance = 0.0
+                distance = 0
             roles = {
                 "Master": "AP",
                 "Node": "AP",
@@ -130,7 +130,7 @@ def generate_simple_text_report(report):
             }
             assert (member_attrs.role in roles), "Role should be one of: %s" \
                 ", ".join(roles.keys())
-            member_info = [member_name, roles[member_attrs.role], "%0.2f" % distance]
+            member_info = [member_name, roles[member_attrs.role], str(distance)]
             net.append("\t".join(member_info))
         nets.append(net)
     sections.append(["Nets", join_list(nets, "")])

@@ -52,9 +52,9 @@ class RadioMobileReportTest(unittest.TestCase):
         net1_title, net1_contents = nets[0]
         self.assertEqual("== Josjo1-Josjo2", net1_title[0])
         self.assertEqual(['', 'Mode: wifia-6m', '', 
-            'Node\tRole\tDistance to AP [km]',
-            'Josjojauarina 1\tAP\t0.00',
-            'Josjojauarina 2\tSTA\t22.48', ''], net1_contents)
+            'Node\tRole\tDistance to AP',
+            'Josjojauarina 1\tAP\t0',
+            'Josjojauarina 2\tSTA\t22482', ''], net1_contents)
 
 
 if __name__ == '__main__':
