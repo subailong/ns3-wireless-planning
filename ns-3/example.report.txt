@@ -25,8 +25,8 @@ Systems
 ---------------------------------------------------------------------------
 Name                Pwr Tx    Loss  Loss (+)  Rx thr.   Ant. G. Ant. Type
 
-Sistema   1         10,000W   0,5dB 0,000dB/m -107,0dBm 2,0dBi  omni.ant
-Sistema   2         10,000W   0,5dB 0,000dB/m -107,0dBm 2,0dBi  omni.ant
+wifia-5mb           10,000W   0,5dB 0,000dB/m -107,0dBm 2,0dBi  omni.ant
+wimax-16qam1/2      10,000W   0,5dB 0,000dB/m -107,0dBm 2,0dBi  omni.ant
 Sistema   3         10,000W   0,5dB 0,000dB/m -107,0dBm 2,0dBi  omni.ant
 Sistema   4         10,000W   0,5dB 0,000dB/m -107,0dBm 2,0dBi  omni.ant
 Sistema   5         10,000W   0,5dB 0,000dB/m -107,0dBm 2,0dBi  omni.ant
@@ -54,7 +54,7 @@ Sistema  25         10,000W   0,5dB 0,000dB/m -107,0dBm 2,0dBi  omni.ant
 Active nets information
 ---------------------------------------------------------------------------
 
-Josjo1-Josjo2 [wifia-6m]      
+Josjo1-Josjo2 [wifi]      
 Topology Star
 144,0 MHz to 148,0 MHz
 Vertical polarization
@@ -64,13 +64,13 @@ Refractivity= 301 N-units, conductivity= 0,005 S/m, permittivity= 15
 Continental temperate climate
 
 Net members:               #  01 02 Role:         System:             Antenna:
-Josjojauarina 1            01    57 Master        Sistema   1         2,0m
-Josjojauarina 2            02 57    Slave         Sistema   1         2,0m
+Josjojauarina 1            01    57 Master        wifia-5mb           2,0m
+Josjojauarina 2            02 57    Slave         wifia-5mb           2,0m
 
                            Quality = 50 - number of resend
 
 
-Josjo2 [wifib-2m]             
+Josjo2 [wifi]             
 Topology Star
 144,0 MHz to 148,0 MHz
 Vertical polarization
@@ -80,14 +80,14 @@ Refractivity= 301 N-units, conductivity= 0,005 S/m, permittivity= 15
 Continental temperate climate
 
 Net members:               #  01 02 03 Role:         System:             Antenna:
-Josjojauarina 2            01    60 77 Master        Sistema   1         2,0m
-Ccatcca                    02 60       Slave         Sistema   1         2,0m
-Kcauri                     03 77       Slave         Sistema   1         2,0m
+Josjojauarina 2            01    60 77 Master        wifia-5mb         2,0m
+Ccatcca                    02 60       Slave         wifia-5mb         2,0m
+Kcauri                     03 77       Slave         wifia-5mb         2,0m
 
                            Quality = 50 - number of resend
 
 
-Josjo1 [wifib-2m]             
+Josjo1 [wifi]             
 Topology Star
 144,0 MHz to 148,0 MHz
 Vertical polarization
@@ -97,14 +97,14 @@ Refractivity= 301 N-units, conductivity= 0,005 S/m, permittivity= 15
 Continental temperate climate
 
 Net members:               #  01 02 03 Role:         System:             Antenna:
-Josjojauarina 1            01    62 81 Master        Sistema   1         2,0m
-Urpay                      02 62       Slave         Sistema   1         2,0m
-Huiracochan                03 81       Slave         Sistema   1         2,0m
+Josjojauarina 1            01    62 81 Master        wifia-5mb         2,0m
+Urpay                      02 62       Slave         wifia-5mb         2,0m
+Huiracochan                03 81       Slave         wifia-5mb         2,0m
 
                            Quality = 50 - number of resend
 
 
-Huiracochan [wifib-2m]        
+Huiracochan [wimax]        
 Topology Star
 144,0 MHz to 148,0 MHz
 Vertical polarization
@@ -114,8 +114,8 @@ Refractivity= 301 N-units, conductivity= 0,005 S/m, permittivity= 15
 Continental temperate climate
 
 Net members:               #  01 02 Role:         System:             Antenna:
-Huiracochan                01    74 Master        Sistema   1         2,0m
-Urcos                      02 74    Slave         Sistema   1         2,0m
+Huiracochan                01    74 Master        wimax-16qam1/2      2,0m
+Urcos                      02 74    Slave         wimax-16qam1/2      2,0m
 
                            Quality = 50 - number of resend
 

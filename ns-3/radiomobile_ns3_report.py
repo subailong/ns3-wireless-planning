@@ -25,20 +25,20 @@ Kcauri	839	-9.31278,-74.81306	36559,768
 
 == Josjo1-Josjo2
 
-Mode: wifia-6m
+Mode: wifi
 
-Node	Role	Distance to AP 
-Josjojauarina 1	AP	0
-Josjojauarina 2	STA	22480
+Node	Role	Distance to AP Mode  
+Josjojauarina 1	AP	0   wifib-2m
+Josjojauarina 2	STA	22480   wifib-2m
 
 == Josjo2
 
-Mode: wifib-2m
+Mode: wimax
 
-Node	Role	Distance to AP
-Josjojauarina 2	AP	0
-Ccatcca	STA	15620
-Kcauri	STA	15670        
+Node	Role	Distance to BS  Mode
+Josjojauarina 2	BS	0   wimax-
+Ccatcca	SS	15620   wimax-all
+Kcauri	SS	15670   wimax-qpsk3/4
 """
 import os
 import re
@@ -96,6 +96,21 @@ def generate_simple_text_report(report):
     sections.append(["Nodes", nodes])               
 
     # Active networks
+    roles_table = {
+        "wifi": {
+            "Master": "AP",
+            "Node": "AP",
+            "Slave": "STA",
+            "Terminal": "STA",
+        },
+        "wimax": {
+            "Master": "BS",
+            "Node": "BS",
+            "Slave": "SS",
+            "Terminal": "SS",                
+        }            
+    }
+    
     nets = []
     for complete_name, attrs in report.nets.iteritems():
         match = re.match("^(.*?)\s*\[(.*)\]$", complete_name)
@@ -113,24 +128,28 @@ def generate_simple_text_report(report):
         slaves = radiomobile.get_units_for_network(attrs, 'Slave') + \
             radiomobile.get_units_for_network(attrs, 'Terminal')
         assert (len(slaves) >= 1), "Need at least one slave/terminal in a network"
-        net.append("\t".join(["Node", "Role", "Distance to AP"]))
+        master_name = roles_table[mode]["Master"]
+        net.append("\t".join(["Node", "Role", "Distance to %s" % master_name, "Mode"]))
         master_location = report.units[master].location
         for member_name, member_attrs in attrs.net_members.iteritems():
+            if member_name not in report.units:
+                raise ValueError, "Member of net not found in units: %s" % member_name
             member_location = report.units[member_name].location
             if member_name != master:
                 distance = radiomobile.get_distance_between_locations(
                     master_location, member_location)
             else:
-                distance = 0
-            roles = {
-                "Master": "AP",
-                "Node": "AP",
-                "Slave": "STA",
-                "Terminal": "STA",            
-            }
-            assert (member_attrs.role in roles), "Role should be one of: %s" \
-                ", ".join(roles.keys())
-            member_info = [member_name, roles[member_attrs.role], str(distance)]
+                distance = 0            
+            if mode not in roles_table:
+                raise ValueError, "Known modes are 'wifi' and 'wimax': %s" % mode
+            roles = roles_table[mode]
+            member_mode = member_attrs.system.split(" - ")[-1]
+            member_info = [
+                member_name, 
+                roles[member_attrs.role], 
+                str(distance),
+                member_mode,
+            ]
             net.append("\t".join(member_info))
         nets.append(net)
     sections.append(["Nets", join_list(nets, "")])
