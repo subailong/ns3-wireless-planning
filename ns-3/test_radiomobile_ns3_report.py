@@ -43,7 +43,7 @@ class RadioMobileReportTest(unittest.TestCase):
         title, contents = self.sections[0]
         self.assertEqual("= General information", title[0])
         self.assertEqual(
-            ["", "Netfile: CUSCO-NW.NET", "Generated: 2010-02-23T12:13:46", ""],
+            ["", "Netfile: CUSCO-NE.NET", "Generated: 2010-04-14T13:56:45", ""],
             contents)
 
     def test_nodes(self):
@@ -68,17 +68,19 @@ class RadioMobileReportTest(unittest.TestCase):
         self.assertEqual("== Josjo1-Josjo2", net1_title[0])
         self.assertEqual(['', 'Mode: wifi', '', 
             'Node\tRole\tDistance to AP\tMode',
-            'Josjojauarina 1\tAP\t0\twifia-5mb',
-            'Josjojauarina 2\tSTA\t22482\twifia-5mb', ''], net1_contents)
+            'Josjojauarina 1\tAP\t0\twifib-5.5mbs',
+            'Josjojauarina 2\tSTA\t22482\twifia-2mbs', ''], net1_contents)
 
     def test_wimax_nets(self):
         nets = self.get_nets()
-        net1_title, net1_contents = nets[3]
-        self.assertEqual("== Huiracochan", net1_title[0])
-        self.assertEqual(['', 'Mode: wimax', '', 
-            'Node\tRole\tDistance to BS\tMode',
-            'Huiracochan\tBS\t0\twimax-16qam1/2',
-            'Urcos\tSS\t12892\twimax-16qam1/2'], net1_contents)
+        net1_title, net1_contents = nets[1]
+        self.assertEqual("== Josjo2", net1_title[0])
+        self.assertEqual([
+            '', 'Mode: wimax', '', 
+            'Node\tRole\tDistance to BS\tMode', 
+            'Josjojauarina 2\tBS\t0\tAll', 
+            'Ccatcca\tSS\t15619\tQPSK 3/4', 
+            'Kcauri\tSS\t15666\tQPSK 3/4', ''], net1_contents)
 
 
 if __name__ == '__main__':

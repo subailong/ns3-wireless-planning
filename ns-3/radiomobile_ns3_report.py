@@ -73,6 +73,27 @@ def join_list(lstlst, joinval):
             yield x
         if index < len(lstlst)-1:
             yield joinval 
+
+def get_ns3_mode(member_short_mode): 
+    """Return mode in netinfo format."""
+    wimax_equivalences = {
+        "wxbk12": "BPSK 1/2",
+        "wxqk12": "QPSK 1/2",
+        "wxqk34": "QPSK 3/4",
+        "wx16qm12": "16QAM 1/2",
+        "wx16qm34": "16QAM 3/4",
+        "wx64qm23": "64QAM 2/3",
+        "wxall": "All",
+    }
+    short_mode = re.search("\[(.*)\]", member_short_mode).group(1)
+    standard = short_mode[0:2].lower()
+    assert standard in ("wf", "wx")
+    if standard == "wf": # wifi
+        return "wifi%s-%smbs" % (short_mode[2], short_mode[3:])   
+    elif standard == "wx": # wimax 
+        return wimax_equivalences[short_mode.lower()]
+    else:
+        raise ValueError, "Standards allowed: WF (wifi), WX (wimax)"
         
 def generate_simple_text_report(report):
     """Return string containing a simple text report from Radiomobile report."""        
@@ -143,12 +164,12 @@ def generate_simple_text_report(report):
             if mode not in roles_table:
                 raise ValueError, "Known modes are 'wifi' and 'wimax': %s" % mode
             roles = roles_table[mode]
-            member_mode = member_attrs.system.split(" - ")[-1]
+            member_short_mode = member_attrs.system.split(" - ")[-1]
             member_info = [
                 member_name, 
                 roles[member_attrs.role], 
                 str(distance),
-                member_mode,
+                get_ns3_mode(member_short_mode),
             ]
             net.append("\t".join(member_info))
         nets.append(net)
@@ -159,7 +180,8 @@ def generate_simple_text_report(report):
   
 def main(args):    
     if len(args) != 1:
-        debug("Usage: %s RADIOMOBILE_REPORT_FILE" % os.path.basename(sys.argv[0]))
+        prog = os.path.basename(sys.argv[0])
+        sys.stderr.write("Usage: %s RADIOMOBILE_REPORT_FILE\n" % prog)
         return 2
     text_report_filename, = args
     report = radiomobile.parse_report(text_report_filename)

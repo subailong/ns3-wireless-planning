@@ -1,34 +1,34 @@
 ﻿
 Radio Mobile
-Report generated at 12:13:46 on 02-23-2010
+Report generated at 13:56:45 on 04-14-2010
 ---------------------------------------------------------------------------
 General information
 ---------------------------------------------------------------------------
-Net file      Z:\HOME\ARNAU\FREELANCE\EHAS\RADIOMOBILE\NS-3\CUSCO-NW\CUSCO-NW.NET
-Map file      Z:\HOME\ARNAU\FREELANCE\EHAS\RADIOMOBILE\NS-3\CUSCO-NW\CUSCO-NW.MAP
-Map centre    09°22'35"S 074°57'55"W FI20MO
-Map size      50,0 km N-S, 100,30 E-W
+Net file      Z:\HOME\ARNAU\FREELANCE\EHAS\WIMAX\NS3-WIRELESS-PLANNING\RADIOMOBILE\EXAMPLES\CUSCO-NE\CUSCO-NE.NET
+Map file      Z:\HOME\ARNAU\FREELANCE\EHAS\WIMAX\NS3-WIRELESS-PLANNING\RADIOMOBILE\EXAMPLES\CUSCO-NE\CUSCO-NE.MAP
+Map centre    09°21'36"S 075°03'09"W FI20LP
+Map size      50,0 km N-S, 100,29 E-W
 ---------------------------------------------------------------------------
 Active units information
 ---------------------------------------------------------------------------
 Name                Location                                     Elevation
 
 Josjojauarina 1     09°19'11"S 075°08'45"W FI20KQ              280,0m
-Josjojauarina 2     09°16'01"S 074°56'53"W FI20MR              217,0m
-Ccatcca             09°12'33"S 074°49'06"W FI20OS              367,1m
-Kcauri              09°18'46"S 074°48'47"W FI20OQ              839,9m
-Urpay               09°19'45"S 075°17'41"W FI20IQ              247,0m
+Josjojauarina 2     09°16'01"S 074°56'53"W FI20MR              220,3m
+Ccatcca             09°12'33"S 074°49'06"W FI20OS              374,8m
+Kcauri              09°18'46"S 074°48'47"W FI20OQ              864,1m
+Urpay               09°19'45"S 075°17'41"W FI20IQ              248,2m
 Huiracochan         09°25'37"S 075°12'57"W FI20JN              254,0m
-Urcos               09°29'52"S 075°07'22"W FI20KM              274,0m
+Urcos               09°29'52"S 075°07'22"W FI20KM              274,3m
 ---------------------------------------------------------------------------
 Systems
 ---------------------------------------------------------------------------
 Name                Pwr Tx    Loss  Loss (+)  Rx thr.   Ant. G. Ant. Type
 
-wifia-5mb           10,000W   0,5dB 0,000dB/m -107,0dBm 2,0dBi  omni.ant
-wimax-16qam1/2      10,000W   0,5dB 0,000dB/m -107,0dBm 2,0dBi  omni.ant
-Sistema   3         10,000W   0,5dB 0,000dB/m -107,0dBm 2,0dBi  omni.ant
-Sistema   4         10,000W   0,5dB 0,000dB/m -107,0dBm 2,0dBi  omni.ant
+[WFb5.5]            10,000W   0,5dB 0,000dB/m -107,0dBm 2,0dBi  omni.ant
+[WFa2]              10,000W   0,5dB 0,000dB/m -107,0dBm 2,0dBi  omni.ant
+[WXqk34]            10,000W   0,5dB 0,000dB/m -107,0dBm 2,0dBi  omni.ant
+[WXall]             10,000W   0,5dB 0,000dB/m -107,0dBm 2,0dBi  omni.ant
 Sistema   5         10,000W   0,5dB 0,000dB/m -107,0dBm 2,0dBi  omni.ant
 Sistema   6         10,000W   0,5dB 0,000dB/m -107,0dBm 2,0dBi  omni.ant
 Sistema   7         10,000W   0,5dB 0,000dB/m -107,0dBm 2,0dBi  omni.ant
@@ -54,7 +54,7 @@ Sistema  25         10,000W   0,5dB 0,000dB/m -107,0dBm 2,0dBi  omni.ant
 Active nets information
 ---------------------------------------------------------------------------
 
-Josjo1-Josjo2 [wifi]      
+Josjo1-Josjo2 [wifi]          
 Topology Star
 144,0 MHz to 148,0 MHz
 Vertical polarization
@@ -64,13 +64,13 @@ Refractivity= 301 N-units, conductivity= 0,005 S/m, permittivity= 15
 Continental temperate climate
 
 Net members:               #  01 02 Role:         System:             Antenna:
-Josjojauarina 1            01    57 Master        wifia-5mb           2,0m
-Josjojauarina 2            02 57    Slave         wifia-5mb           2,0m
+Josjojauarina 1            01    57 Master        [WFb5.5]            2,0m
+Josjojauarina 2            02 57    Slave         [WFa2]              2,0m
 
                            Quality = 50 - number of resend
 
 
-Josjo2 [wifi]             
+Josjo2 [wimax]                
 Topology Star
 144,0 MHz to 148,0 MHz
 Vertical polarization
@@ -80,14 +80,14 @@ Refractivity= 301 N-units, conductivity= 0,005 S/m, permittivity= 15
 Continental temperate climate
 
 Net members:               #  01 02 03 Role:         System:             Antenna:
-Josjojauarina 2            01    60 77 Master        wifia-5mb         2,0m
-Ccatcca                    02 60       Slave         wifia-5mb         2,0m
-Kcauri                     03 77       Slave         wifia-5mb         2,0m
+Josjojauarina 2            01    64 79 Master        [WXall]             2,0m
+Ccatcca                    02 64       Slave         [WXqk34]            2,0m
+Kcauri                     03 79       Slave         [WXqk34]            2,0m
 
                            Quality = 50 - number of resend
 
 
-Josjo1 [wifi]             
+Josjo1 [wifi]                 
 Topology Star
 144,0 MHz to 148,0 MHz
 Vertical polarization
@@ -97,14 +97,14 @@ Refractivity= 301 N-units, conductivity= 0,005 S/m, permittivity= 15
 Continental temperate climate
 
 Net members:               #  01 02 03 Role:         System:             Antenna:
-Josjojauarina 1            01    62 81 Master        wifia-5mb         2,0m
-Urpay                      02 62       Slave         wifia-5mb         2,0m
-Huiracochan                03 81       Slave         wifia-5mb         2,0m
+Josjojauarina 1            01    62 81 Master        [WFb5.5]            2,0m
+Urpay                      02 62       Slave         [WFb5.5]            2,0m
+Huiracochan                03 81       Slave         [WFb5.5]            2,0m
 
                            Quality = 50 - number of resend
 
 
-Huiracochan [wimax]        
+Huiracochan [wifi]            
 Topology Star
 144,0 MHz to 148,0 MHz
 Vertical polarization
@@ -114,8 +114,8 @@ Refractivity= 301 N-units, conductivity= 0,005 S/m, permittivity= 15
 Continental temperate climate
 
 Net members:               #  01 02 Role:         System:             Antenna:
-Huiracochan                01    74 Master        wimax-16qam1/2      2,0m
-Urcos                      02 74    Slave         wimax-16qam1/2      2,0m
+Huiracochan                01    74 Master        [WFb5.5]            2,0m
+Urcos                      02 74    Slave         [WFb5.5]            2,0m
 
                            Quality = 50 - number of resend
 
